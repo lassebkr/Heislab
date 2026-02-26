@@ -6,4 +6,6 @@
 void orders_fetch(void);
 void orders_print(void);
 void go_to_floor(void);
+void orders_clear(void);
+
 bool orders_check_buttons_at_floor(int floor);
