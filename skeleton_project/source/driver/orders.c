@@ -55,16 +55,21 @@ int orders_determine_next_floor(void) {
 }
 
 void go_to_floor() {
-    if (orders_check_buttons_at_floor(2) == true) {
-        if (elevio_floorSensor > 2) {
-            elevio_motorDirection(DIRN_DOWN);
-        }   else {
-            if (elevio_floorSensor < 2) {
-                elevio_motorDirection(DIRN_UP);
+    while (1) {
+        if (orders_check_buttons_at_floor(2) == true) {
+            if (elevio_floorSensor > 2) {
+                fsm_transition_to(STATE_MOVING_DOWN);
+                printf("JEG GÅR NED");
+            }   else {
+                if (elevio_floorSensor < 2) {
+                    fsm_transition_to(STATE_MOVING_UP);
+                    printf("JEG GÅR OPP");
+                }
             }
+            break;
         }
     }
-
+    printf("JEG ER HER");
     while (1) {
         if (elevio_floorSensor == 2) {
             elevio_motorDirection(DIRN_STOP);
@@ -77,7 +82,7 @@ bool orders_check_buttons_at_floor(int floor) {
     for (int i = 0; i < N_BUTTONS; ++i) {
         ButtonType buttontype = (ButtonType)i;
         if (elevio_callButton(floor, buttontype)) {
-            return true;  // tidlig exit
+            return true;  
         }
     }
     return false;

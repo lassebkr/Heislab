@@ -1,5 +1,6 @@
 #pragma once
 #include "stdio.h"
+#include "stdbool.h"
 #include "elevio.h"
 
 void orders_fetch(void);

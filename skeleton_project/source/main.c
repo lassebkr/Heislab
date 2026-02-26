@@ -57,14 +57,7 @@ int main(){
 
 int main() {
     elevio_init();
-    elevio_motorDirection(DIRN_STOP);
-    while(1) {
-        orders_fetch();
-        orders_print();
-        if(elevio_stopButton()) {
-            break;
-        }
-        nanosleep(&(struct timespec){0, 20*1000*1000}, NULL);
-    }
+    fsm_initialize();
+    go_to_floor();
     return 0;
 }
