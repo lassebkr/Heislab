@@ -57,7 +57,5 @@ int main(){
 int main() {
     elevio_init();
     fsm_initialize();
-
-
     return 0;
 }

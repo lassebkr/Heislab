@@ -16,6 +16,7 @@ void fsm_initialize(void) {
 
     if (floor == BETWEEN_FLOORS) {
         elevio_motorDirection(DIRN_DOWN);
+        elevio_stopLamp(0);
     }
 
     while (1) {
@@ -128,7 +129,7 @@ void fsm_state_IDLE(Transition transition) {
 void fsm_state_DOOR_OPEN(Transition transition) {
     switch (transition) {
         case ENTRY:
-            
+        
             break;
         case EXIT:
 
