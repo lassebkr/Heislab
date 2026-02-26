@@ -4,6 +4,7 @@
 #define BETWEEN_FLOORS -1
 
 static State current_state;
+static MotorDirection current_direction;
 
 /*
 Denne funksjone skal initialisere heisen. Den sjekker om den er mellom etasjer, 
@@ -30,6 +31,10 @@ void fsm_initialize(void) {
 
 State fsm_get_state(void) {
     return current_state;
+}
+
+MotorDirection fsm_get_direction(void) {
+    return current_direction;
 }
 
 void fsm_handle_event(Event event) {

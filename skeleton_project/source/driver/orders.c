@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "fsm.h"
 #include "elevio.h"
 #include "orders.h"
 #include "stdbool.h"
@@ -22,3 +23,62 @@ void orders_print(void) {
         }
     }
 }   
+
+int orders_determine_next_floor(void) {
+    bool pending_order = false;
+        for (int i = 0; i < N_FLOORS; ++i) {
+            for (int j = 0; j < N_BUTTONS; ++ j) {
+                if (elevio_callButton == 1) {
+                    pending_order = true;
+                }
+        }
+    }
+
+    MotorDirection direction = fsm_get_state();
+
+    switch(direction) {
+        case DIRN_DOWN:
+
+            break;
+        case DIRN_UP:
+
+            break;
+        case DIRN_STOP:
+
+            break;
+    }
+
+    if (pending_order == false) {
+        return -1;
+    }
+
+}
+
+void go_to_floor() {
+    if (orders_check_buttons_at_floor(2) == true) {
+        if (elevio_floorSensor > 2) {
+            elevio_motorDirection(DIRN_DOWN);
+        }   else {
+            if (elevio_floorSensor < 2) {
+                elevio_motorDirection(DIRN_UP);
+            }
+        }
+    }
+
+    while (1) {
+        if (elevio_floorSensor == 2) {
+            elevio_motorDirection(DIRN_STOP);
+        }
+    }
+}
+
+
+bool orders_check_buttons_at_floor(int floor) {
+    for (int i = 0; i < N_BUTTONS; ++i) {
+        ButtonType buttontype = (ButtonType)i;
+        if (elevio_callButton(floor, buttontype)) {
+            return true;  // tidlig exit
+        }
+    }
+    return false;
+}
