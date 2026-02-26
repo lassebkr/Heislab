@@ -12,7 +12,7 @@ void controller_test_elevator() {
         if (floor = 2) {
             fsm_transition_to(STATE_MOVING_DOWN);
         } else {
-            if (floor = 0) {
+            if (floor = 1) {
                 fsm_transition_to(STATE_MOVING_UP);
             }
         }

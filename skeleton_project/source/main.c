@@ -5,6 +5,7 @@
 #include "driver/elevio.h"
 #include "driver/fsm.h"
 #include "driver/controller.h"
+#include "driver/orders.h"
 
 /*
 
@@ -56,6 +57,14 @@ int main(){
 
 int main() {
     elevio_init();
-    fsm_initialize();
+    elevio_motorDirection(DIRN_STOP);
+    while(1) {
+        orders_fetch();
+        orders_print();
+        if(elevio_stopButton()) {
+            break;
+        }
+        nanosleep(&(struct timespec){0, 20*1000*1000}, NULL);
+    }
     return 0;
 }
