@@ -11,6 +11,10 @@ void controller_test_elevator() {
         int floor = elevio_floorSensor();
         if (floor = 2) {
             fsm_transition_to(STATE_MOVING_DOWN);
+        } else {
+            if (floor = 0) {
+                fsm_transition_to(STATE_MOVING_UP);
+            }
         }
     }   
 
