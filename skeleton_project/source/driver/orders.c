@@ -95,3 +95,11 @@ void orders_clear(void) {
         }
     }
 }
+
+bool orders_should_stop_at_floor(int floor) {
+    
+}
+
+MotorDirection orders_choose_direction(void) {
+
+}

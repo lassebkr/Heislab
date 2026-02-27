@@ -1,4 +1,5 @@
 #pragma once
+#include "stdbool.h"
 
 typedef enum{
     STATE_INIT,
@@ -10,10 +11,10 @@ typedef enum{
 } State;
 
 typedef enum {
-    EVENT_START_MOVING_UP,
-    EVENT_START_MOVING_DOWN,
+    EVENT_EMERGENCY_STOP,
     EVENT_FLOOR_REACHED,
-    EVENT_DOOR_TIMEOUT
+    EVENT_DOOR_TIMEOUT,
+    EVENT_NEW_ORDER
 } Event;
 
 typedef enum {
@@ -36,6 +37,12 @@ void fsm_initialize(void);
 
 //Returner nåværende tilstand
 State fsm_get_state(void);
+
+//Funksjon som sjekker om en etasje er nådd
+bool fsm_floor_reached(void);
+
+//Returnerer nåværende etasje
+int fsm_get_current_floor(void);
 
 //Håndterer hendelse, ved å bestemme og gjennomføre state transition, og utføre alle nødvendig exit og entry actions
 void fsm_handle_event(Event event);

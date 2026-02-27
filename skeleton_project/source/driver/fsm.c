@@ -1,5 +1,6 @@
 #include "fsm.h"
 #include "elevio.h"
+#include "stdbool.h"
 
 #define BETWEEN_FLOORS -1
 
@@ -35,6 +36,16 @@ State fsm_get_state(void) {
 
 MotorDirection fsm_get_direction(void) {
     return current_direction;
+}
+
+int fsm_get_current_floor(void) {
+    return elevio_floorSensor();
+}
+
+bool fsm_floor_reached(void) {
+    if (elevio_floorSensor() != BETWEEN_FLOORS) {
+        return true;
+    } else {return false;}
 }
 
 void fsm_handle_event(Event event) {
