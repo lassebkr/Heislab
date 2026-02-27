@@ -22,7 +22,7 @@ void controller_test_elevator() {
     nanosleep(&(struct timespec){0, 20*1000*1000}, NULL);
 }
 
-void controller_run(void) {
+void controller_run_elevator(void) {
     elevio_init();
     fsm_initialize();
 
