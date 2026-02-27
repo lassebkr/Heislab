@@ -1,6 +1,10 @@
+#include "stdbool.h"
 #include "fsm.h"
 #include "elevio.h"
 #include "stdbool.h"
+#include "orders.h"
+#include "controller.h"
+#include "door.h"
 
 #define BETWEEN_FLOORS -1
 
@@ -49,51 +53,21 @@ bool fsm_floor_reached(void) {
 }
 
 void fsm_handle_event(Event event) {
-    switch(current_state) {
-        /*
-        Denne switchen skal basert på nåværende tilstand og inntruffet hendelse avgjøre hva som blir den nye tilstanden og 
-        hvilke actions som skal utføres
-        */
-        case STATE_INIT:
-            /*
-            Når heisen initialiserer skal alle bestillinger ignoreres midlertidig, 
-            men de skal lagres og utføres når intialiseringen er ferdig. STOP-knapp er et unntak?
-            */
-           break;
-        case STATE_IDLE:
-            /*
-            Når heisen er IDLE står den og venter på bestillinger, her tas alle ordre imot
-            */
-           break;
-        case STATE_MOVING_UP:
-            /*
-            Dersom det kommer en bestilling om å stoppe i en etasje på veien opp 
-            (bestillingen må være pil opp hvis den er fra utsiden) skal heisen stoppe i den etasjen.
-            Ellers skal den legge bestillingen i kø.
-            */
-           break;
-        case STATE_MOVING_DOWN:
-            /*
-            Dersom det kommer en bestilling om å stoppe i en etasje på veien ned 
-            (bestillingen må være pil ned hvis den er fra utsiden) skal heisen stoppe i den etasjen.
-            Ellers skal den legge bestillingen i kø.
-            */
-           break;
-        case STATE_DOOR_OPEN:
-            /*
-            Dersom det er en bestilling om å dra til en annen etasje må døren lukkes.
-            */
-           break;
-        case STATE_EMERGENCY_STOP:
-            /*
-            Denne hendelsen skal håndteres umiddelbart uansett hva(?)
-            */
-            break;
+    switch(event) {
+        case EVENT_FLOOR_REACHED:
+        int floor = elevio_floorSensor();
+            if (orders_should_stop_at_floor(floor) == true) {
+                fsm_transition_to(STATE_DOOR_OPEN);
+            }
 
+            break;
+        case EVENT_EMERGENCY_STOP:
+            fsm_transition_to(STATE_EMERGENCY_STOP);
+            break;
+        case EVENT_NEW_ORDER:
+            break;
     }
 }
-
-
 
 void fsm_transition_to(State new_state) {
     if (new_state == current_state) {
@@ -145,10 +119,11 @@ void fsm_state_IDLE(Transition transition) {
 void fsm_state_DOOR_OPEN(Transition transition) {
     switch (transition) {
         case ENTRY:
-        
+            door_timer_start();
+            elevio_doorOpenLamp(1);
             break;
         case EXIT:
-
+            elevio_doorOpenLamp(0);
             break;
     }
 }
