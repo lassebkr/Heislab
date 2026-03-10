@@ -55,16 +55,36 @@ bool fsm_floor_reached(void) {
 void fsm_handle_event(Event event) {
     switch(event) {
         case EVENT_FLOOR_REACHED:
-        int floor = elevio_floorSensor();
+            int floor = elevio_floorSensor();
             if (orders_should_stop_at_floor(floor) == true) {
+                door_timer_start();
                 fsm_transition_to(STATE_DOOR_OPEN);
             }
-
             break;
-        case EVENT_EMERGENCY_STOP:
+        case EVENT_EMERGENCY_STOP_PRESSED:
             fsm_transition_to(STATE_EMERGENCY_STOP);
+            orders_clear();
+            break;
+        case EVENT_EMERGENCY_STOP_RELEASED:
+            if (elevio_floorSensor() == BETWEEN_FLOORS) {
+                fsm_transition_to(STATE_IDLE);
+            } else {
+                door_timer_start();
+                fsm_transition_to(STATE_DOOR_OPEN);
+            }
             break;
         case EVENT_NEW_ORDER:
+            if (current_state == STATE_IDLE) {
+                if (orders_should_stop_at_floor(elevio_floorSensor()) == true) {
+                    fsm_transition_to(STATE_DOOR_OPEN);
+                } else {
+                    if (orders_should_go_up() == true) {
+                        fsm_transition_to(STATE_MOVING_UP);
+                    } else {
+                        fsm_transition_to(STATE_MOVING_DOWN);
+                    }
+                }
+            }
             break;
     }
 }
@@ -98,8 +118,7 @@ void fsm_call_state_function(State state, Transition transition) {
 }
 
 /*
-Nedenfor er funksjoner som skal utføre entry og exit actions for de ulike tilstandene.
-Funksjonene tar en Transition som input, som bestemmer om de skal utføre ENTRY eller EXIT actions.
+FUnksjonene nedenfor skal sette lys og motorretning i henhold til tilstanden heisen er i.
 */
 
 
@@ -119,7 +138,7 @@ void fsm_state_IDLE(Transition transition) {
 void fsm_state_DOOR_OPEN(Transition transition) {
     switch (transition) {
         case ENTRY:
-            door_timer_start();
+            elevio_motorDirection(DIRN_STOP);
             elevio_doorOpenLamp(1);
             break;
         case EXIT:
@@ -155,8 +174,13 @@ void fsm_state_EMERGENCY_STOP(Transition transition) {
         case ENTRY:
             elevio_motorDirection(DIRN_STOP);
             elevio_stopLamp(1);
+            if (fsm_floor_reached() == true) {
+                door_timer_start();
+                elevio_doorOpenLamp(1);
+            }
             break;
         case EXIT:
+            elevio_stopLamp(0);
             break;
     }
 }

@@ -2,6 +2,7 @@
 
 
 #define N_FLOORS 4
+#define BETWEEN_FLOORS -1
 
 typedef enum { 
     DIRN_DOWN   = -1,

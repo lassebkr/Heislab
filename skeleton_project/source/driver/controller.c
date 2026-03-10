@@ -2,6 +2,7 @@
 #include "controller.h"
 #include "fsm.h"
 #include "orders.h"
+#include "door.h"
 #include <time.h>
 
 void controller_test_elevator() {
@@ -28,18 +29,36 @@ void controller_run_elevator(void) {
 
     while (1) {
         if (elevio_stopButton() == 1) {
-            fsm_handle_event(EVENT_EMERGENCY_STOP);
+            fsm_handle_event(EVENT_EMERGENCY_STOP_PRESSED);
         }
 
         if (fsm_floor_reached()) {
             fsm_handle_event(EVENT_FLOOR_REACHED);
         }
 
-        orders_fetch();
+        State state = fsm_get_state();
 
-        if (fsm_get_state() == STATE_IDLE) {
-            fsm_handle_event(EVENT_NEW_ORDER);
+        if (state != STATE_EMERGENCY_STOP) {
+            orders_fetch();
         }
+
+        switch(state) {
+            case STATE_IDLE:
+                fsm_handle_event(EVENT_NEW_ORDER);
+                break;
+            case STATE_DOOR_OPEN:
+                if (door_timer_expired()) {
+                    fsm_handle_event(EVENT_DOOR_TIMEOUT);
+                }
+                break;
+            case STATE_EMERGENCY_STOP:
+                if (elevio_stopButton() == 0) {
+                    fsm_handle_event(EVENT_EMERGENCY_STOP_RELEASED);
+                }
+                break;
+            
+        }
+
 
     }
 }
