@@ -20,6 +20,8 @@ Når den har funnet etasjen stopper heisen, og går inn i IDLE tilstand.
 void fsm_initialize(void) {
     int floor = elevio_floorSensor();
 
+    orders_clear();
+
     if (floor == BETWEEN_FLOORS) {
         elevio_motorDirection(DIRN_DOWN);
         elevio_stopLamp(0);
