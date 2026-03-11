@@ -12,7 +12,10 @@ bool orders[N_FLOORS][N_BUTTONS];
 void orders_fetch(void) {
     for (int i = 0; i < N_FLOORS; ++i) {
         for (int j = 0; j < N_BUTTONS; ++ j) {
-            orders[i][j] = elevio_callButton(i, j);
+            if (elevio_callButton(i,j)) {
+                orders[i][j] = elevio_callButton(i, j);
+                elevio_buttonLamp(i, j, elevio_callButton(i, j));
+            }
         }
     }
 }
@@ -21,6 +24,7 @@ void orders_clear(void) {
         for (int i = 0; i < N_FLOORS; ++i) {
             for (int j = 0; j < N_BUTTONS; ++ j) {
                 orders[i][j] = 0;
+                elevio_buttonLamp(i, j, 0);
         }
     }
 }
@@ -28,6 +32,7 @@ void orders_clear(void) {
 void orders_clear_orders_at_floor(int floor) {
     for (int i = 0; i < N_BUTTONS; ++i) {
         orders[floor][i] = 0;
+        elevio_buttonLamp(floor, i, 0);
     }
 }
 

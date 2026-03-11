@@ -25,6 +25,7 @@ void controller_test_elevator() {
 void controller_run_elevator(void) {
     elevio_init();
     fsm_initialize();
+    printf("JEG ER HER");
 
     while (1) {
         if (elevio_stopButton()) {
@@ -40,7 +41,6 @@ void controller_run_elevator(void) {
                 if (orders_should_stop_at_floor(elevio_floorSensor())) {
                     fsm_handle_event(EVENT_FLOOR_REACHED);
                 }
-
                 break;
             case STATE_MOVING_DOWN:
                 if (orders_should_stop_at_floor(elevio_floorSensor())) {
@@ -54,6 +54,7 @@ void controller_run_elevator(void) {
                 }
                 break;
             case STATE_DOOR_OPEN:
+                printf("AWAITING DOOR TIMER");
                 if (door_timer_expired()) {
                     fsm_handle_event(EVENT_DOOR_TIMEOUT);
                 }
