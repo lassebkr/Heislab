@@ -30,14 +30,16 @@ void orders_clear(void) {
 }
 
 void orders_clear_orders_at_floor(int floor) {
-    for (int i = 0; i < N_BUTTONS; ++i) {
-        orders[floor][i] = 0;
-        elevio_buttonLamp(floor, i, 0);
+    if (floor != -1) {
+        for (int i = 0; i < N_BUTTONS; ++i) {
+            orders[floor][i] = 0;
+            elevio_buttonLamp(floor, i, 0);
+        }
     }
 }
 
 bool orders_should_stop_at_floor(int floor) {
-    if (fsm_get_current_floor() != -1) {
+    if (floor != -1) {
         for (int i = 0; i < N_BUTTONS; ++i) {
             if (orders[floor][i] == true) {
                 return true;
@@ -48,10 +50,17 @@ bool orders_should_stop_at_floor(int floor) {
 }
 
 bool orders_should_go_up(void) {
-    int current_floor = fsm_get_current_floor();
-    for (int i = current_floor + 1; i < N_FLOORS; ++i) {
+    int floor;
+
+    if (fsm_get_current_floor() != -1) {
+        floor = fsm_get_current_floor();
+    } else {
+        floor = fsm_get_previous_floor();
+    }
+
+    for (int i = floor + 1; i < N_FLOORS; ++i) {
         for (int j = 0; j < N_BUTTONS; ++j) {
-            if (orders[i][j] == true) {
+            if (orders[i][j]) {
                 return true;
             }
         }

@@ -10,6 +10,8 @@
 
 static State current_state;
 static MotorDirection current_direction;
+static int previous_floor;
+static MotorDirection previous_direction;
 
 /*
 Denne funksjone skal initialisere heisen. Den sjekker om den er mellom etasjer, 
@@ -45,6 +47,22 @@ MotorDirection fsm_get_direction(void) {
 
 int fsm_get_current_floor(void) {
     return elevio_floorSensor();
+}
+
+int fsm_get_previous_floor(void) {
+    return previous_floor;
+}
+
+void fsm_set_previous_floor(int floor) {
+    previous_floor = floor;
+}
+
+MotorDirection fsm_get_previous_direction(void) {
+    return previous_direction;
+}
+
+void fsm_set_previous_direction(MotorDirection direction) {
+    previous_direction = direction;
 }
 
 bool fsm_floor_reached(void) {
@@ -83,17 +101,43 @@ void fsm_handle_event(Event event) {
                 fsm_transition_to(STATE_DOOR_OPEN);
             }
             break;
-        case EVENT_NEW_ORDER:
+    case EVENT_NEW_ORDER:
             printf("NEW ORDER\n");
-        
-            if (orders_should_stop_at_floor(elevio_floorSensor()) == true) {
-                fsm_transition_to(STATE_DOOR_OPEN);
-            } else {
-                if (orders_should_go_up() == true) {
-                    fsm_transition_to(STATE_MOVING_UP);
+            printf("PREVIOUS FLOOR: %d\n", previous_floor);
+            printf(orders_should_stop_at_floor(previous_floor) ? "SHOULD STOP AT PREVIOUS FLOOR\n" : "SHOULD NOT STOP AT PREVIOUS FLOOR\n");
+            printf(orders_pending_orders() ? "PENDING ORDERS\n" : "NO PENDING ORDERS\n");
+
+            if (elevio_floorSensor() == BETWEEN_FLOORS) {
+                printf("HEISEN ER MELLOM ETASJER\n");
+                if (orders_should_stop_at_floor(previous_floor)) {
+                    printf("GÅR TILBAKE TIL FORRIGE ETASJE!\n");
+                    printf("PREVIOUS DIRECTION: %d\n", previous_direction);
+                    switch(previous_direction) {
+                        case DIRN_DOWN:
+                            fsm_transition_to(STATE_MOVING_UP);
+                            break;
+                        case DIRN_UP:
+                            fsm_transition_to(STATE_MOVING_DOWN);
+                            break;
+                    }
                 } else {
-                    fsm_transition_to(STATE_MOVING_DOWN);
+                    if (orders_should_go_up() == true) {
+                        fsm_transition_to(STATE_MOVING_UP);
+                    } else {
+                        fsm_transition_to(STATE_MOVING_DOWN);
+                        printf("GÅR NEDDOVER\n");
+                    }
                 }
+            } else {
+                if (orders_should_stop_at_floor(elevio_floorSensor()) == true) {
+                    fsm_transition_to(STATE_DOOR_OPEN);
+                } else {
+                    if (orders_should_go_up() == true) {
+                        fsm_transition_to(STATE_MOVING_UP);
+                    } else {
+                        fsm_transition_to(STATE_MOVING_DOWN);
+                    }
+                } 
             }
             break;
         case EVENT_DOOR_TIMEOUT:
@@ -157,8 +201,6 @@ void fsm_state_DOOR_OPEN(Transition transition) {
             printf("DOOR OPEN\n");
             elevio_motorDirection(DIRN_STOP);
             elevio_doorOpenLamp(1);
-            // when the door opens we should clear any orders for the
-            // current floor so they don't trigger again immediately
             orders_clear_orders_at_floor(elevio_floorSensor());
             break;
         case EXIT:
@@ -176,6 +218,7 @@ void fsm_state_MOVING_UP(Transition transition) {
             break;
         case EXIT:
             elevio_motorDirection(DIRN_STOP);
+            fsm_set_previous_direction(DIRN_UP);
             break;
     }
 }
@@ -189,6 +232,7 @@ void fsm_state_MOVING_DOWN(Transition transition) {
             break;
         case EXIT:
             elevio_motorDirection(DIRN_STOP);
+            fsm_set_previous_direction(DIRN_DOWN);
             break;
     }
 }

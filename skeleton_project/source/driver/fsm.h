@@ -1,5 +1,6 @@
 #pragma once
 #include "stdbool.h"
+#include "elevio.h"
 
 typedef enum{
     STATE_IDLE,
@@ -42,6 +43,12 @@ bool fsm_floor_reached(void);
 
 //Returnerer nåværende etasje
 int fsm_get_current_floor(void);
+
+
+int fsm_get_previous_floor(void);
+void fsm_set_previous_floor(int floor);
+MotorDirection fsm_get_previous_direction(void);
+void fsm_set_previous_direction(MotorDirection direction);
 
 //Håndterer hendelse, ved å bestemme og gjennomføre state transition, og utføre alle nødvendig exit og entry actions
 void fsm_handle_event(Event event);
