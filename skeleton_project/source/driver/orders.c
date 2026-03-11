@@ -4,6 +4,7 @@
 #include "orders.h"
 #include "stdbool.h"
 
+#define N_FLOORS 4
 #define N_BUTTONS 3
 
 bool orders[N_FLOORS][N_BUTTONS];
@@ -31,9 +32,11 @@ void orders_clear_orders_at_floor(int floor) {
 }
 
 bool orders_should_stop_at_floor(int floor) {
-    for (int i = 0; i < N_BUTTONS; ++i) {
-        if (orders[floor][i] == true) {
-            return true;
+    if (fsm_get_current_floor() != -1) {
+        for (int i = 0; i < N_BUTTONS; ++i) {
+            if (orders[floor][i] == true) {
+                return true;
+            }
         }
     }
     return false;
@@ -51,6 +54,16 @@ bool orders_should_go_up(void) {
     return false;
 }
 
+bool orders_pending_orders(void) {
+    for (int i = 0; i < N_FLOORS; ++i) {
+        for (int j = 0; j < N_BUTTONS; ++j) {
+            if (orders[i][j] == true) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 /*
 void orders_print(void) {

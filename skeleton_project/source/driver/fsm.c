@@ -24,7 +24,6 @@ void fsm_initialize(void) {
 
     if (floor == BETWEEN_FLOORS) {
         elevio_motorDirection(DIRN_DOWN);
-        elevio_stopLamp(0);
     }
 
     while (1) {
@@ -57,17 +56,26 @@ bool fsm_floor_reached(void) {
 void fsm_handle_event(Event event) {
     switch(event) {
         case EVENT_FLOOR_REACHED:
+            printf("FLOOR REACHED\n");
             int floor = elevio_floorSensor();
             if (orders_should_stop_at_floor(floor) == true) {
                 door_timer_start();
                 fsm_transition_to(STATE_DOOR_OPEN);
+            } else {
+                if (elevio_floorSensor() == 0 || elevio_floorSensor() == N_FLOORS - 1) {
+                    fsm_transition_to(STATE_IDLE);
+                }
             }
+                
             break;
         case EVENT_EMERGENCY_STOP_PRESSED:
+            printf("EMERGENCY STOP PRESSED\n");
             fsm_transition_to(STATE_EMERGENCY_STOP);
             orders_clear();
             break;
         case EVENT_EMERGENCY_STOP_RELEASED:
+            printf("EMERGENCY STOP RELEASED\n");
+            orders_clear();
             if (elevio_floorSensor() == BETWEEN_FLOORS) {
                 fsm_transition_to(STATE_IDLE);
             } else {
@@ -76,6 +84,8 @@ void fsm_handle_event(Event event) {
             }
             break;
         case EVENT_NEW_ORDER:
+            printf("NEW ORDER\n");
+        
             if (orders_should_stop_at_floor(elevio_floorSensor()) == true) {
                 fsm_transition_to(STATE_DOOR_OPEN);
             } else {
@@ -87,19 +97,18 @@ void fsm_handle_event(Event event) {
             }
             break;
         case EVENT_DOOR_TIMEOUT:
+            printf("DOOR TIMEOUT\n");
             if (elevio_obstruction() == 1) {
                 door_timer_start();
             } else {
                 fsm_transition_to(STATE_IDLE);
             }
+            break;
     }
 }
 
-void fsm_transition_to(State new_state) {
-    if (new_state == current_state) {
-        fsm_call_state_function(current_state, STAY);
-    }
 
+void fsm_transition_to(State new_state) {
     fsm_call_state_function(current_state, EXIT);
     fsm_call_state_function(new_state, ENTRY);
 }
@@ -131,7 +140,9 @@ FUnksjonene nedenfor skal sette lys og motorretning i henhold til tilstanden hei
 void fsm_state_IDLE(Transition transition) {
         switch(transition) {
         case ENTRY:
+            current_state = STATE_IDLE;
             elevio_motorDirection(DIRN_STOP);
+            printf("IDLE\n");
             break;
         case EXIT:
 
@@ -142,8 +153,13 @@ void fsm_state_IDLE(Transition transition) {
 void fsm_state_DOOR_OPEN(Transition transition) {
     switch (transition) {
         case ENTRY:
+            current_state = STATE_DOOR_OPEN;
+            printf("DOOR OPEN\n");
             elevio_motorDirection(DIRN_STOP);
             elevio_doorOpenLamp(1);
+            // when the door opens we should clear any orders for the
+            // current floor so they don't trigger again immediately
+            orders_clear_orders_at_floor(elevio_floorSensor());
             break;
         case EXIT:
             elevio_doorOpenLamp(0);
@@ -154,6 +170,8 @@ void fsm_state_DOOR_OPEN(Transition transition) {
 void fsm_state_MOVING_UP(Transition transition) {
         switch(transition) {
         case ENTRY:
+            current_state = STATE_MOVING_UP;
+            printf("MOVING UP\n");
             elevio_motorDirection(DIRN_UP);
             break;
         case EXIT:
@@ -165,6 +183,8 @@ void fsm_state_MOVING_UP(Transition transition) {
 void fsm_state_MOVING_DOWN(Transition transition) {
         switch(transition) {
         case ENTRY:
+            current_state = STATE_MOVING_DOWN;
+            printf("MOVING DOWN\n");
             elevio_motorDirection(DIRN_DOWN);
             break;
         case EXIT:
@@ -176,6 +196,8 @@ void fsm_state_MOVING_DOWN(Transition transition) {
 void fsm_state_EMERGENCY_STOP(Transition transition) {
         switch(transition) {
         case ENTRY:
+            current_state = STATE_EMERGENCY_STOP;
+            printf("EMERGENCY STOP\n");
             elevio_motorDirection(DIRN_STOP);
             elevio_stopLamp(1);
             if (fsm_floor_reached() == true) {

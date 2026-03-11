@@ -28,8 +28,7 @@ typedef enum {
 
 typedef enum {
     ENTRY,
-    EXIT,
-    STAY
+    EXIT
 } Transition;
 
 //Initiialiserer heisen
