@@ -10,9 +10,6 @@
  * It interacts with the elevator hardware through the elevio interface and uses the FSM module to determine the current state of the elevator.
  */
 
- /**
-  * 
-  */
 void orders_fetch(void);
 void orders_print(void);
 void go_to_floor(void);

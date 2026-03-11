@@ -29,11 +29,12 @@ void controller_run_elevator(void) {
 
     while (1) {
         if (elevio_stopButton() == 1) {
+            printf("STOP");
             fsm_handle_event(EVENT_EMERGENCY_STOP_PRESSED);
-        }
-
-        if (fsm_floor_reached()) {
-            fsm_handle_event(EVENT_FLOOR_REACHED);
+        } else {
+            if (fsm_floor_reached()) {
+                fsm_handle_event(EVENT_FLOOR_REACHED);
+            }
         }
 
         State state = fsm_get_state();
@@ -58,7 +59,7 @@ void controller_run_elevator(void) {
                 break;
             
         }
-
+        nanosleep(&(struct timespec){0, 20*1000*1000}, NULL);
 
     }
 }

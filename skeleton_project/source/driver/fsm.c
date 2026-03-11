@@ -76,18 +76,22 @@ void fsm_handle_event(Event event) {
             }
             break;
         case EVENT_NEW_ORDER:
-            if (current_state == STATE_IDLE) {
-                if (orders_should_stop_at_floor(elevio_floorSensor()) == true) {
-                    fsm_transition_to(STATE_DOOR_OPEN);
+            if (orders_should_stop_at_floor(elevio_floorSensor()) == true) {
+                fsm_transition_to(STATE_DOOR_OPEN);
+            } else {
+                if (orders_should_go_up() == true) {
+                    fsm_transition_to(STATE_MOVING_UP);
                 } else {
-                    if (orders_should_go_up() == true) {
-                        fsm_transition_to(STATE_MOVING_UP);
-                    } else {
-                        fsm_transition_to(STATE_MOVING_DOWN);
-                    }
+                    fsm_transition_to(STATE_MOVING_DOWN);
                 }
             }
             break;
+        case EVENT_DOOR_TIMEOUT:
+            if (elevio_obstruction() == 1) {
+                door_timer_start();
+            } else {
+                fsm_transition_to(STATE_IDLE);
+            }
     }
 }
 
@@ -128,8 +132,6 @@ void fsm_state_IDLE(Transition transition) {
         switch(transition) {
         case ENTRY:
             elevio_motorDirection(DIRN_STOP);
-            elevio_stopLamp(1);
-
             break;
         case EXIT:
 

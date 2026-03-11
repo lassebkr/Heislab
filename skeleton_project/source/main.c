@@ -58,6 +58,6 @@ int main(){
 int main() {
     elevio_init();
     fsm_initialize();
-    go_to_floor();
+    controller_run_elevator();
     return 0;
 }

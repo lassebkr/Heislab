@@ -2,7 +2,6 @@
 #include "stdbool.h"
 
 typedef enum{
-    STATE_INIT,
     STATE_IDLE,
     STATE_DOOR_OPEN,
     STATE_MOVING_UP,
