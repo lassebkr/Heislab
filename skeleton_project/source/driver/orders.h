@@ -18,6 +18,7 @@ void orders_clear_orders_at_floor(int floor);
 
 bool orders_should_stop_at_floor(int floor);
 bool orders_should_go_up(void);
+bool orders_should_go_down(void);
 bool orders_pending_orders(void);
 
 MotorDirection orders_choose_direction(void);

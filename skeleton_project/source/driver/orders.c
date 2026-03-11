@@ -38,6 +38,7 @@ void orders_clear_orders_at_floor(int floor) {
     }
 }
 
+/*
 bool orders_should_stop_at_floor(int floor) {
     if (floor != -1) {
         for (int i = 0; i < N_BUTTONS; ++i) {
@@ -48,6 +49,7 @@ bool orders_should_stop_at_floor(int floor) {
     }
     return false;
 }
+*/
 
 bool orders_should_go_up(void) {
     int floor;
@@ -59,6 +61,25 @@ bool orders_should_go_up(void) {
     }
 
     for (int i = floor + 1; i < N_FLOORS; ++i) {
+        for (int j = 0; j < N_BUTTONS; ++j) {
+            if (orders[i][j]) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool orders_should_go_down(void) {
+    int floor;
+
+    if (fsm_get_current_floor() != -1) {
+        floor = fsm_get_current_floor();
+    } else {
+        floor = fsm_get_previous_floor();
+    }
+
+    for (int i = floor - 1; i >= 0; --i) {
         for (int j = 0; j < N_BUTTONS; ++j) {
             if (orders[i][j]) {
                 return true;
@@ -153,3 +174,43 @@ bool orders_check_buttons_at_floor(int floor) {
 */
 
 
+
+bool orders_should_stop_at_floor(int floor) {
+    if (floor != -1) {
+        switch(fsm_get_state()) {
+            case STATE_MOVING_UP:
+                if (orders_should_go_up() == true) {
+                    if (orders[floor][BUTTON_HALL_UP] || orders[floor][BUTTON_CAB]) {
+                        return true;
+                    } else { return false; } 
+                } else {
+                    if (orders[floor][BUTTON_HALL_UP] || orders[floor][BUTTON_CAB] || orders[floor][BUTTON_HALL_DOWN]) {
+                        return true;
+                    }
+                }
+                return false;
+                break;
+
+            case STATE_MOVING_DOWN:
+                if (orders_should_go_down() == true) {
+                    if (orders[floor][BUTTON_HALL_DOWN] || orders[floor][BUTTON_CAB]) {
+                        return true;
+                    } else { return false; } 
+                } else {
+                    if (orders[floor][BUTTON_HALL_UP] || orders[floor][BUTTON_CAB] || orders[floor][BUTTON_HALL_DOWN]) {
+                        return true;
+                    }
+                }
+                return false;
+                break;
+            case STATE_IDLE:
+                if (orders[floor][BUTTON_HALL_UP] || orders[floor][BUTTON_HALL_DOWN] || orders[floor][BUTTON_CAB]) {
+                    return true;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    return false;
+}

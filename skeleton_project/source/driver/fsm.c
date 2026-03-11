@@ -132,10 +132,10 @@ void fsm_handle_event(Event event) {
                 if (orders_should_stop_at_floor(elevio_floorSensor()) == true) {
                     fsm_transition_to(STATE_DOOR_OPEN);
                 } else {
-                    if (orders_should_go_up() == true) {
-                        fsm_transition_to(STATE_MOVING_UP);
-                    } else {
+                    if (orders_should_go_down() == true) {
                         fsm_transition_to(STATE_MOVING_DOWN);
+                    } else {
+                        fsm_transition_to(STATE_MOVING_UP);
                     }
                 } 
             }
