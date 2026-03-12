@@ -35,6 +35,7 @@ void fsm_initialize(void) {
             break;
         }
     }
+
 }
 
 State fsm_get_state(void) {
@@ -69,6 +70,13 @@ bool fsm_floor_reached(void) {
     if (elevio_floorSensor() != BETWEEN_FLOORS) {
         return true;
     } else {return false;}
+}
+
+void fsm_update_floor_lights(void) {
+    int floor = elevio_floorSensor();
+    if (floor != BETWEEN_FLOORS) {
+        elevio_floorIndicator(floor);
+    }
 }
 
 void fsm_handle_event(Event event) {

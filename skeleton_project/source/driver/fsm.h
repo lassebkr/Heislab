@@ -49,6 +49,7 @@ int fsm_get_previous_floor(void);
 void fsm_set_previous_floor(int floor);
 MotorDirection fsm_get_previous_direction(void);
 void fsm_set_previous_direction(MotorDirection direction);
+void fsm_update_floor_lights(void);
 
 //Håndterer hendelse, ved å bestemme og gjennomføre state transition, og utføre alle nødvendig exit og entry actions
 void fsm_handle_event(Event event);

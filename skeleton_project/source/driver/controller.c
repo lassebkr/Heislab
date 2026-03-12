@@ -27,7 +27,7 @@ void controller_run_elevator(void) {
     fsm_initialize();
     
     while (1) {
-        if (elevio_stopButton()) {
+        if (fsm_get_state() != STATE_EMERGENCY_STOP && elevio_stopButton() == 1) {
             printf("STOP\n");
             fsm_handle_event(EVENT_EMERGENCY_STOP_PRESSED);
         } 
@@ -35,7 +35,13 @@ void controller_run_elevator(void) {
         if (fsm_get_state() != STATE_EMERGENCY_STOP) {
             orders_fetch();
         }
-        orders_fetch();
+
+        if (fsm_floor_reached()) {
+            if (fsm_get_current_floor() != fsm_get_previous_floor()) {
+                fsm_update_floor_lights();
+            }
+        }
+       
         State state = fsm_get_state();
 
         switch(state) {
@@ -49,7 +55,7 @@ void controller_run_elevator(void) {
                 break;
             case STATE_MOVING_DOWN:
                 if (elevio_floorSensor() != -1) {
-                fsm_set_previous_floor(elevio_floorSensor());
+                    fsm_set_previous_floor(elevio_floorSensor());
                 }
                 if (orders_should_stop_at_floor(elevio_floorSensor())) {
                     fsm_handle_event(EVENT_FLOOR_REACHED);
@@ -62,6 +68,9 @@ void controller_run_elevator(void) {
                 }
                 break;
             case STATE_DOOR_OPEN:
+                if (elevio_obstruction()){
+                    door_timer_start();
+                }
                 if (door_timer_expired()) {
                     fsm_handle_event(EVENT_DOOR_TIMEOUT);
                 }
