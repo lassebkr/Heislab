@@ -109,7 +109,7 @@ void fsm_handle_event(Event event) {
                 fsm_transition_to(STATE_DOOR_OPEN);
             }
             break;
-    case EVENT_NEW_ORDER:
+        case EVENT_NEW_ORDER:
             printf("NEW ORDER\n");
             printf("PREVIOUS FLOOR: %d\n", previous_floor);
             printf(orders_should_stop_at_floor(previous_floor) ? "SHOULD STOP AT PREVIOUS FLOOR\n" : "SHOULD NOT STOP AT PREVIOUS FLOOR\n");
@@ -139,6 +139,7 @@ void fsm_handle_event(Event event) {
             } else {
                 if (orders_should_stop_at_floor(elevio_floorSensor()) == true) {
                     fsm_transition_to(STATE_DOOR_OPEN);
+                    door_timer_start();
                 } else {
                     if (orders_should_go_down() == true) {
                         fsm_transition_to(STATE_MOVING_DOWN);
@@ -213,6 +214,7 @@ void fsm_state_DOOR_OPEN(Transition transition) {
             break;
         case EXIT:
             elevio_doorOpenLamp(0);
+            orders_clear_orders_at_floor(elevio_floorSensor());
             break;
     }
 }
