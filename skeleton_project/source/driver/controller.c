@@ -6,22 +6,6 @@
 #include <time.h>
 #include <stdio.h> // needed for printf in test function
 
-void controller_test_elevator() {
-    fsm_initialize();
-    elevio_motorDirection(DIRN_UP);
-
-    while (1) {
-        int floor = elevio_floorSensor();
-        if (floor == 2) {               // use comparison, not assignment
-            fsm_transition_to(STATE_MOVING_DOWN);
-        } else if (floor == 1) {
-            fsm_transition_to(STATE_MOVING_UP);
-        }
-    }   
-
-    nanosleep(&(struct timespec){0, 20*1000*1000}, NULL);
-}
-
 void controller_run_elevator(void) {
     elevio_init();
     fsm_initialize();
