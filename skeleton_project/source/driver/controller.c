@@ -12,7 +12,6 @@ void controller_run_elevator(void) {
     
     while (1) {
         if (fsm_get_state() != STATE_EMERGENCY_STOP && elevio_stopButton() == 1) {
-            printf("STOP\n");
             fsm_handle_event(EVENT_EMERGENCY_STOP_PRESSED);
         } 
         
@@ -47,7 +46,6 @@ void controller_run_elevator(void) {
                 break;
             case STATE_IDLE:
                 if (orders_pending_orders()) {
-                    printf("PENDING ORDERS\n");
                     fsm_handle_event(EVENT_NEW_ORDER);
                 }
                 break;

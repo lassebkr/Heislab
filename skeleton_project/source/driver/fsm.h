@@ -19,15 +19,6 @@ typedef enum {
 } Event;
 
 typedef enum {
-    ACTION_NONE,
-    ACTION_START_MOTOR_UP,
-    ACTION_START_MOTOR_DOWN,
-    ACTION_STOP_MOTOR,
-    ACTION_OPEN_DOOR,
-    ACTION_CLOSE_DOOR,
-} Action;
-
-typedef enum {
     ENTRY,
     EXIT
 } Transition;
